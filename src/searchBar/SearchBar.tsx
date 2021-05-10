@@ -1,9 +1,13 @@
 import React, {Component} from "react";
 import AsyncSelect, {ValueType} from "react-select"
-import {SearchMovie} from "../models/SearchMovie";
+import {MovieSearch} from "../models/MovieSearch";
 import './SearchBar.css'
 import MovieRenderer from "../movieRenderer/MovieRenderer";
-//import MovieRenderer from "../movieRenderer/MovieRenderer";
+
+export interface ChildProps{
+    movieID : string,
+    exitFunction : () => void
+}
 
 export default class SearchBar extends Component{
     state = {
@@ -21,7 +25,7 @@ export default class SearchBar extends Component{
             // Don't call API for empty or short queries
             () => {
                 if (this.state.query && this.state.query.length > 2){
-                    this.getAPIresults();
+                    this.GetAPISearchResults();
                 }
                 // Clear options if empty or short query
                 else{
@@ -38,17 +42,21 @@ export default class SearchBar extends Component{
         }
     }
 
+    clearSelection = () => {
+        this.setState({selectedOption : ''});
+        console.log(this.state.selectedOption)
+    }
+
     // Query OMDB API with the input query
-    getAPIresults = () => {
+    GetAPISearchResults = () => {
         this.setState( {loading : true})
         fetch('https://www.omdbapi.com/?s=' + this.state.query + '&type=movie&apikey=71965067')
             .then(res => res.json()).then(jsonRes => {
-                console.log(jsonRes);
                 // Succesful query
                 if (jsonRes.Response === "True"){
                     let movieOptionsArray: { label: JSX.Element; value: string; }[] = [];
                     // Map movie objects to options object
-                    jsonRes.Search.forEach( (element: SearchMovie) => {
+                    jsonRes.Search.forEach( (element: MovieSearch) => {
                         let movieOption = {
                             label: <div>
                                         <img src={element.Poster} height="90px" width="60px" alt=""/>
@@ -65,11 +73,10 @@ export default class SearchBar extends Component{
                 else{
                     this.setState({results : jsonRes.Search, options : [], loading : false})
                 }
-
-
         })
     }
 
+    // Style the options dropdown
     customStyles = {
         option: (provided: any) => ({
             ...provided,
@@ -94,7 +101,6 @@ export default class SearchBar extends Component{
                                  }}
                                  isLoading={this.state.loading}
                                  options={this.state.options}
-                                 loadOptions={console.log('Options' + this.state.options)}
                                  autoFocus={true}
                                  components={{DropdownIndicator:() => null, IndicatorSeparator:() => null}}
                                  styles={this.customStyles}
@@ -102,11 +108,13 @@ export default class SearchBar extends Component{
                 </form>
             )
         }
-        else{
-            return(
-                <div className="Card">
-                    <MovieRenderer movieID={this.state.selectedOption}/>
-                </div>
+        else {
+            return (
+                <MovieRenderer props={
+                    {movieID: this.state.selectedOption,
+                        exitFunction : this.clearSelection.bind(this)
+                    }
+                }/>
             )
         }
     }

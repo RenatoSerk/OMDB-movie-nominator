@@ -5,17 +5,19 @@ import {ChildProps} from "../searchBar/SearchBar";
 
 export default class MovieRenderer extends Component<{ props : ChildProps }> {
     state = {
+        loading : true,
         movieID : this.props.props.movieID,
         exitFunction : this.props.props.exitFunction,
-        loading : true,
+        nominateFunction: this.props.props.nominateFunction,
+        nominatedIDs : this.props.props.nominatedTitles,
         movie : {
-            Title: undefined,
-            Poster: undefined,
-            Director: undefined,
-            Actors: undefined,
-            Released: undefined,
-            imdbRating: undefined,
-            Plot: undefined,
+            Title: '',
+            Poster: '',
+            Director: '',
+            Actors: '',
+            Released: '',
+            imdbRating: '',
+            Plot: '',
             Genre: ''
         }
     }
@@ -31,10 +33,10 @@ export default class MovieRenderer extends Component<{ props : ChildProps }> {
             if (jsonRes.Response === "True"){
                 this.setState({movie : jsonRes, loading: false})
             }
-            // Failed query
+            // Failed query, get us out of here!
             else{
-                // do something here
-                // this.setState()
+                console.error("Movie search failed")
+                this.state.exitFunction();
             }
         })
     }
@@ -44,19 +46,34 @@ export default class MovieRenderer extends Component<{ props : ChildProps }> {
             Title, Poster, Director, Released,
             imdbRating, Plot, Genre, Actors
         } = this.state.movie;
-        if (this.state.loading){
-            return(
+
+        if (this.state.loading) {
+            return (
                 <div>
                     <img src={spinner} height="200px" width="200px" alt="LOADING"/>
                 </div>
             )
         }
-        else{
-            return(
+        else {
+            let nomButton : React.ReactElement;
+
+            // Title has not been nominated already
+            if (this.state.nominatedIDs.indexOf(this.state.movieID) === -1) {
+                nomButton = <button className="button" onClick={() => {
+                    this.state.nominateFunction(this.state.movieID);
+                    this.state.exitFunction();
+                }}> Nominate! </button>
+            }
+            // Title is already nominated
+            else {
+                nomButton = <span/>
+            }
+
+            return (
                 <div className="Card">
                     <div className="poster-container">
-                        <div className="poster-bg"
-                             style={{ backgroundImage : Poster}}/>
+                        <img className="poster-bg"
+                             src={Poster} alt={''}/>
                     </div>
                     <div className="movie-info">
                         <h2>{Title}</h2>
@@ -66,15 +83,15 @@ export default class MovieRenderer extends Component<{ props : ChildProps }> {
                         <h4>IMDB Rating: {imdbRating} / 10</h4>
                         <p>{Plot}</p>
                         <div className="tags-container">
-                            {Genre && Genre.split(', ').map((gen: any ) => <span>{gen}</span>)}
+                            {Genre && Genre.split(', ').map((gen: any) => <span>{gen}</span>)}
                         </div>
-                        <div>
+                        <div className="button-container">
                             &nbsp;&nbsp;
-                            <button className="card-button"
-                                    onClick={this.state.exitFunction}>Back</button>
+                            <button className="button"
+                                    onClick={this.state.exitFunction}>Back
+                            </button>
                             &nbsp;&nbsp;
-                            <button className="card-button"
-                                    onClick={() => {}}>Nominate!</button>
+                            {nomButton}
                             &nbsp;&nbsp;
                         </div>
                     </div>

@@ -7,6 +7,8 @@ import MovieRenderer from "../movieRenderer/MovieRenderer";
 export interface ChildProps{
     movieID : string,
     exitFunction : () => void
+    nominateFunction : (nomTitle : string) => void
+    nominatedTitles : string[]
 }
 
 export default class SearchBar extends Component{
@@ -15,9 +17,23 @@ export default class SearchBar extends Component{
         results : [],
         options : [],
         loading : false,
-        selectedOption : ''
+        selectedOption : '',
+        nominatedTitles : []
     }
-    search: any;
+    searchQuery: any;
+
+    // Style the options dropdown
+    customStyles = {
+        option: (provided: any) => ({
+            ...provided,
+            borderBottom: '1px dotted pink',
+            color: 'blue',
+            padding: 10,
+            textAlign: 'left',
+            fontSize: 20,
+            cursor : 'pointer'
+        })
+    }
 
     // Called when input field is used
     handleOnInputChange = (input : any) => {
@@ -42,9 +58,18 @@ export default class SearchBar extends Component{
         }
     }
 
+    // Used for exiting the movie card
     clearSelection = () => {
         this.setState({selectedOption : ''});
-        console.log(this.state.selectedOption)
+    }
+
+    // Used for nominating a title from the movie card
+    nominateSelection = (nommedTitle : string) => {
+        let nommedTitlesCopy = this.state.nominatedTitles;
+        // @ts-ignore
+        nommedTitlesCopy.push(nommedTitle);
+        this.setState(
+            {nominatedTitles : nommedTitlesCopy});
     }
 
     // Query OMDB API with the input query
@@ -59,32 +84,24 @@ export default class SearchBar extends Component{
                     jsonRes.Search.forEach( (element: MovieSearch) => {
                         let movieOption = {
                             label: <div>
-                                        <img src={element.Poster} height="90px" width="60px" alt=""/>
-                                        &nbsp;{element.Title}&nbsp;({element.Year})
-                                    </div>,
+                                        <img src={element.Poster} height="90px" width="60px" alt="" />
+                                        <span className="dropdown-text">
+                                            &nbsp;{element.Title}&nbsp;({element.Year})
+                                        </span>
+                                   </div>,
                             value: element.Title,
                             ID: element.imdbID
                         }
                         movieOptionsArray.push(movieOption);
                     })
-                    this.setState({results : jsonRes.Search, options : movieOptionsArray, loading : false})
+                    this.setState({results : jsonRes.Search,
+                        options : movieOptionsArray,
+                        loading : false})
                 }
                 // Failed query
                 else{
                     this.setState({results : jsonRes.Search, options : [], loading : false})
                 }
-        })
-    }
-
-    // Style the options dropdown
-    customStyles = {
-        option: (provided: any) => ({
-            ...provided,
-            borderBottom: '1px dotted pink',
-            color: 'blue',
-            padding: 10,
-            textAlign: 'left',
-            fontSize: 20
         })
     }
 
@@ -94,7 +111,7 @@ export default class SearchBar extends Component{
                 <form>
                     <AsyncSelect className="auto-complete"
                                  placeholder="Movie title..."
-                                 ref={input => this.search = input}
+                                 ref={input => this.searchQuery = input}
                                  onInputChange={(input) => this.handleOnInputChange(input)}
                                  onChange={(selectedOption) => {
                                      this.handleOnSelectedOption(selectedOption)
@@ -111,8 +128,10 @@ export default class SearchBar extends Component{
         else {
             return (
                 <MovieRenderer props={
-                    {movieID: this.state.selectedOption,
-                        exitFunction : this.clearSelection.bind(this)
+                    {   movieID: this.state.selectedOption,
+                        exitFunction : this.clearSelection.bind(this),
+                        nominateFunction : this.nominateSelection.bind(this),
+                        nominatedTitles : this.state.nominatedTitles
                     }
                 }/>
             )

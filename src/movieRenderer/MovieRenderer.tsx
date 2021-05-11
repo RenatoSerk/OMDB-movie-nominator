@@ -64,7 +64,8 @@ export default class MovieRenderer extends Component<{ RendererProps : MovieRend
             let nomButton : React.ReactElement;
 
             // Title has not been nominated already
-            if (this.state.nominatedMovies.indexOf(this.state.shownMovie) === -1) {
+            if (this.state.nominatedMovies.length < 5
+                && !this.state.nominatedMovies.find( mov => mov.id === this.state.shownMovie.id)) {
                 nomButton = <button className="button" onClick={() => {
                     this.nominateTitle();
                     this.state.exitFunction();

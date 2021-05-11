@@ -1,5 +1,6 @@
 .auto-complete {
-    width: 500px;
+    width: 50vw;
     font-size: 12px;
+    z-index: 2;
 }
 

@@ -1,15 +1,15 @@
 import React, {Component} from "react";
 import spinner from "./spinner.gif"
 import './MovieRenderer.css'
-import {ChildProps} from "../searchBar/SearchBar";
+import {MovieRendererProps} from "../models/Props";
 
-export default class MovieRenderer extends Component<{ props : ChildProps }> {
+export default class MovieRenderer extends Component<{ RendererProps : MovieRendererProps }> {
     state = {
         loading : true,
-        movieID : this.props.props.movieID,
-        exitFunction : this.props.props.exitFunction,
-        nominateFunction: this.props.props.nominateFunction,
-        nominatedIDs : this.props.props.nominatedTitles,
+        shownMovie : this.props.RendererProps.movie,
+        exitFunction : this.props.RendererProps.exitFunction,
+        nominateFunction: this.props.RendererProps.nominateFunction,
+        nominatedMovies : this.props.RendererProps.nominations,
         movie : {
             Title: '',
             Poster: '',
@@ -23,7 +23,7 @@ export default class MovieRenderer extends Component<{ props : ChildProps }> {
     }
 
     componentDidMount() {
-        this.GetAPISearchResults(this.state.movieID);
+        this.GetAPISearchResults(this.state.shownMovie.id);
     }
 
     GetAPISearchResults = (id : string) => {
@@ -39,6 +39,12 @@ export default class MovieRenderer extends Component<{ props : ChildProps }> {
                 this.state.exitFunction();
             }
         })
+    }
+
+    nominateTitle(){
+        let nomsCopy = this.state.nominatedMovies;
+        nomsCopy.push(this.state.shownMovie);
+        this.state.nominateFunction(nomsCopy);
     }
 
     render() {
@@ -58,9 +64,9 @@ export default class MovieRenderer extends Component<{ props : ChildProps }> {
             let nomButton : React.ReactElement;
 
             // Title has not been nominated already
-            if (this.state.nominatedIDs.indexOf(this.state.movieID) === -1) {
+            if (this.state.nominatedMovies.indexOf(this.state.shownMovie) === -1) {
                 nomButton = <button className="button" onClick={() => {
-                    this.state.nominateFunction(this.state.movieID);
+                    this.nominateTitle();
                     this.state.exitFunction();
                 }}> Nominate! </button>
             }

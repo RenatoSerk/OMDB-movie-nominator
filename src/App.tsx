@@ -9,13 +9,23 @@ function App() {
     const [logoDisplayed, setMovieDisplayed] = useState(true);
 
     let logoDisplay : ReactElement = <img className="logo" src={logo} alt={''}/>;
+    let nominationsView : ReactElement = <NominationDisplay nominations={nominations}/>
+    let ld : ReactElement = <></>
+    // Check if the logo should be displayed
     if (!logoDisplayed){
+        nominationsView = <div className="break"/>;
         logoDisplay = <div className="break"/>;
+    }
+
+    // Display banner if there are 5 nominations
+    if (nominations.length > 4){
+        ld = <div className="banner">Nominations selected!</div>
     }
 
     return (
         <div className="App">
-            <header className="App-header">
+            <body className="App-header">
+                {ld}
                 <div className="break"/>
                 {logoDisplay}
                 <div className="break"/>
@@ -24,8 +34,8 @@ function App() {
                         setNominations : setNominations,
                         setLogoVisible : setMovieDisplayed                    }
                 }/>
-                <NominationDisplay nominations={nominations}/>
-            </header>
+                {nominationsView}
+            </body>
         </div>
     );
 }

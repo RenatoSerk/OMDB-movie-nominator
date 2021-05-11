@@ -1,0 +1,34 @@
+.nom-container {
+    flex-basis: 100%;
+    display: flex;
+    padding: 0 55px;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+}
+
+.nom-container:hover .poster {
+    transform: translateX(-20%);
+}
+
+.poster:hover ~ .poster {
+    transform: translateX(20%);
+}
+
+.poster {
+    flex: 0 0 19.7%;
+    text-align: center;
+    margin: 0 2px;
+    width: 80px;
+    height: 300px;
+    transition: transform 300ms ease 100ms;
+}
+
+.poster:hover {
+    transform: scale(1.25) !important;
+}
+
+.filler {
+    flex-basis: 100%;
+    height: 40vh;
+}

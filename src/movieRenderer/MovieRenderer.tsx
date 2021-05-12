@@ -47,6 +47,16 @@ export default class MovieRenderer extends Component<{ RendererProps : MovieRend
         this.state.nominateFunction(nomsCopy);
     }
 
+    removeTitle() {
+        let nomsCopy : {id : string, posterURL : string}[] = [];
+        this.state.nominatedMovies.forEach((mov) => {
+            if (mov.id !== this.state.shownMovie.id){
+                nomsCopy.push(mov);
+            }
+        })
+        this.state.nominateFunction(nomsCopy);
+    }
+
     render() {
         const {
             Title, Poster, Director, Released,
@@ -71,9 +81,12 @@ export default class MovieRenderer extends Component<{ RendererProps : MovieRend
                     this.state.exitFunction();
                 }}> Nominate! </button>
             }
-            // Title is already nominated
+            // Title is already nominated, change nom button into remove button
             else {
-                nomButton = <span/>
+                nomButton = <button className="button" onClick={() => {
+                    this.removeTitle();
+                    this.state.exitFunction();
+                }}> Remove </button>
             }
 
             return (

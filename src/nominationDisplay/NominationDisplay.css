@@ -16,11 +16,10 @@
 }
 
 .poster {
-    flex: 0 0 19.7%;
+    flex: 0 0 10%;
     text-align: center;
     margin: 0 2px;
-    width: 80px;
-    height: 300px;
+    height: 200px;
     transition: transform 300ms ease 100ms;
 }
 

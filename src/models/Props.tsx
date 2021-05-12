@@ -13,6 +13,11 @@ export interface MovieRendererProps {
     nominations : Movie[]
 }
 
+export interface NominationDisplayProps{
+    nominations : Movie[],
+    selectFunction : Dispatch<any>
+}
+
 interface Movie {
     id : string,
     posterURL : string
